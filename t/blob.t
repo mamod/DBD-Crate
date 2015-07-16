@@ -6,16 +6,19 @@ use DBD::Crate;
 use Test::More;
 use Data::Dumper;
 
+if (!$ENV{CRATE_HOST}) {
+    plan skip_all => 'You need to set $ENV{CRATE_HOST} to run tests';
+}
 
-my $dbh = DBI->connect('dbi:Crate:127.0.0.1:4200');
+my $dbh = DBI->connect( 'dbi:Crate:' . $ENV{CRATE_HOST} );
 my $sth;
 my $blob_table = "crate_test_blob_tbl";
 my $string = "some unique data here";
 
 { ##start with deleting if exists
-	$dbh->do("drop blob table $blob_table");
-	my $ret = $dbh->do("create blob table $blob_table clustered into 2 shards with (number_of_replicas='0-all')");
-	ok($ret);
+    $dbh->do("drop blob table $blob_table");
+    my $ret = $dbh->do("create blob table $blob_table clustered into 2 shards with (number_of_replicas='0-all')");
+    ok($ret);
 }
 
 my $hash = $dbh->crate_blob_insert($blob_table, $string) or fail($dbh->errstr);
@@ -36,7 +39,7 @@ ok($dbh->errstr);
 is($dbh->err, 404);
 
 {
-	ok $dbh->do("drop blob table $blob_table");
+    ok $dbh->do("drop blob table $blob_table");
 }
 
 done_testing(10);

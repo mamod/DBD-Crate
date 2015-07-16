@@ -6,7 +6,12 @@ use DBD::Crate;
 use Test::More;
 use Data::Dumper;
 
-my $dbh = DBI->connect('dbi:Crate:127.0.0.1:4200');
+if (!$ENV{CRATE_HOST}) {
+    plan skip_all => 'You need to set $ENV{CRATE_HOST} to run tests';
+}
+
+my $dbh = DBI->connect( 'dbi:Crate:' . $ENV{CRATE_HOST} );
+
 ok($dbh);
 my $sth;
 
