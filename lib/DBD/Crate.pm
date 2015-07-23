@@ -78,7 +78,7 @@ package DBD::Crate::dr; {
         }
 
         my ($t, $dbh) = DBI::_new_dbh($drh, {
-            'Name'          => \@addr
+            'Name'   => \@addr
         });
 
         return $dbh;
@@ -556,6 +556,31 @@ self and it must be **ehem** UNIQUE :)
 Well, there is also no way to get the last inserted id, for the obvious 
 reason mentioned above I guess, but you can query that if you want in a
 new statement
+
+=head1 INSTALLATION & TEST
+
+To install this module, run the following commands:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+OR
+    
+    cpan install DBD-Crate
+
+If you want to run the complete test suite, you need to have
+Crate DB installed and running, then set environment variable
+CRATE_HOST to crate "ip:port"
+
+on windows
+
+    $ set CRATE_HOST=127.0.0.1:4200
+
+on linux
+    
+    $ export CRATE_HOST=127.0.0.1:4200
 
 =head1 See Also
 
