@@ -27,7 +27,7 @@ my $table_name = "my_crate_test_table_error";
     my $r = $sth->execute();
     ok(!$r);
     is($sth->err, 4041);
-    is($sth->errstr, "SQLActionException[Table '$table_name' unknown]");
+    is($sth->errstr, "SQLActionException[Table 'doc.$table_name' unknown]");
 }
 
 {
@@ -41,7 +41,7 @@ my $table_name = "my_crate_test_table_error";
     $sth = $dbh->prepare("create table $table_name (id int primary key)");
     my $ret = $sth->execute();
     is($ret, undef);
-    is($sth->errstr, "SQLActionException[The table '$table_name' already exists.]");
+    is($sth->errstr, "SQLActionException[The table 'doc.$table_name' already exists.]");
     is($sth->err, 4093);
 }
 
