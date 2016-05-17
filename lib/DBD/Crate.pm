@@ -5,7 +5,7 @@ use HTTP::Tiny;
 use JSON::MaybeXS;
 use vars qw($VERSION $REVISION);
 use vars qw($err $errstr $state $drh);
-$VERSION = "0.0.1";
+$VERSION = "0.0.2";
 
 $err     = 0;
 $errstr  = "";
@@ -48,7 +48,7 @@ package DBD::Crate::dr; {
 
     sub connect {
         my ($drh, $dburl, $user, $pass, $attr) = @_;
-        my $UTF8 = defined $attr->{utf8} ? 
+        my $UTF8 = defined $attr->{utf8} ?
                         $attr->{utf8} : 1;
 
         $JSON = JSON::MaybeXS->new({ utf8 => $UTF8 });
@@ -136,7 +136,7 @@ package DBD::Crate::db; {
 
     sub crate_blob_get {
         my ($dbh, $table, $digest) = @_;
-        
+
         if (!$digest){
             $dbh->set_err(-1, "BLOB sha1 digest required");
             return;
@@ -158,7 +158,7 @@ package DBD::Crate::db; {
 
     sub crate_blob_delete {
         my ($dbh, $table, $digest) = @_;
-        
+
         if (!$digest){
             $dbh->set_err(-1, "BLOB sha1 digest required");
             return;
@@ -184,14 +184,14 @@ package DBD::Crate::db; {
     sub crate_table_columns {
         my ($dbh, $table) = @_;
         my $sth = $dbh->prepare(qq~
-            select column_name, data_type, ordinal_position 
-            from information_schema.columns 
+            select column_name, data_type, ordinal_position
+            from information_schema.columns
             where schema_name = 'doc'
             AND table_name = ?
         ~);
 
-        return $dbh->selectall_arrayref( $sth, 
-            { Slice => {} }, 
+        return $dbh->selectall_arrayref( $sth,
+            { Slice => {} },
             $table);
     }
 
@@ -207,7 +207,7 @@ package DBD::Crate::db; {
         ~);
 
         return $dbh->selectall_arrayref( $sth,
-            { Slice => {} }, 
+            { Slice => {} },
             $schema);
     }
 
@@ -216,7 +216,7 @@ package DBD::Crate::db; {
         my $dbh   = shift;
         my $table = shift;
         my $sth = $dbh->prepare(qq~
-            select number_of_replicas, partitioned_by, blobs_path, schema_name, 
+            select number_of_replicas, partitioned_by, blobs_path, schema_name,
                    table_name, number_of_shards, clustered_by
                    from information_schema.tables
                    where schema_name = 'doc'
@@ -229,7 +229,7 @@ package DBD::Crate::db; {
     }
 
     #==================================================
-    # These should be removed once we get crate name 
+    # These should be removed once we get crate name
     # space registered with DBI
     #==================================================
     *DBI::db::crate_blob_insert   = \&crate_blob_insert;
@@ -266,7 +266,7 @@ package DBD::Crate::st; {
             content => $statement,
             # headers => {'Content-Type' => 'application/json'}
         });
-        
+
         if ( $ret->{status} == 599 && scalar @hosts){
             my $i = 0;
             for (@{ $sth->{ConnectionHOST} }){
@@ -290,7 +290,7 @@ package DBD::Crate::st; {
                 code    => ref $data ? $data->{status} : $ret->{status},
                 message => ref $data ? $data->{error}  : ($ret->{content} || $ret->{reason})
             };
-            
+
             $sth->set_err($error->{code}, $error->{message});
             return;
         }
@@ -308,8 +308,8 @@ package DBD::Crate::st; {
                 return;
             }
 
-            $ret = _fetch_data($sth, $statement, 
-                                $sth->{REQUEST_METHOD}, 
+            $ret = _fetch_data($sth, $statement,
+                                $sth->{REQUEST_METHOD},
                                 $sth->{REQUEST_PATH}) or return;
         } else {
             my $hash = {stmt => $statement };
@@ -363,7 +363,7 @@ package DBD::Crate::st; {
 
     *DBI::st::raw = \&raw;
 
-    #Nothing to close, crate is stateless 
+    #Nothing to close, crate is stateless
     sub close {}
 };
 
@@ -391,24 +391,24 @@ DBD::Crate - DBI driver for Crate db
     print "Toatal ", $res, "\n";
 
 =head1 DESCRIPTION
-    
+
 DBD::Crate is a DBI driver for L<Crate DB|https://Crate.io>, DBD::Crate is still
 in early development so any feedback is much appreciated.
 
 =head1 ABOUT CRATE
 
-If you haven't heard of Crate I suggest you to give it a try, it's a is a 
+If you haven't heard of Crate I suggest you to give it a try, it's a is a
 distributed data store With SQL query support, and fulltext seach based
 on Elasticsearch, please read this L<overview|https://crate.io/overview/>
 
 =head1 Methods
 
 =over
- 
+
 =item B<connect>
- 
+
     use DBI;
- 
+
     my $dbh = DBI->connect(DBI:Crate:"); #<- [localhost:4200] defaults
     my $dbh = DBI->connect("DBI:Crate:localhost:5000"); #<-- localhost port 5000
     my $dbh = DBI->connect("DBI:Crate:", '', '', { utf8 => [0|1] });
@@ -440,7 +440,7 @@ Sometimes you need to get raw json data, maybe to send as jsonp response
     $sth->raw;
 
 The returned data will be of json format as the following
-    
+
     {"cols" : ["id","content"], "duration" : 0, "rows" : [ [1, "content"], ... ], "rowcount" : 2}
 
 =back
@@ -457,21 +457,21 @@ Crate includes support to store binary large objects (L<BLOBS|https://crate.io/d
 
 C<crate_blob_insert> accepts three arguments, blob table name, sha1 hex digest of data, and data tp store.
 sha1 hex digest argument is optional in which DBD::Crate will create the digest for you
-    
+
     my $digest = $dbh->crate_blob_insert("blobtable", data);
 
 C<crate_blob_insert> returns the sha1 hex digest of the data stored on success or undef on failure
 and set C<$dbh-E<gt>errstr> & C<$dbh-E<gt>err>
 
 =item B<crate_blob_get>
-    
+
     $dbh->crate_blob_get("blobtable", "sha1 digest");
 
 returns stored data, in C<blobtable> with C<sha1 digest> previously used to store data, on error
 returns undef, and set C<$dbh-E<gt>errstr> & C<$dbh-E<gt>err>
 
 =item B<crate_blob_delete>
-    
+
     $dbh->crate_blob_delete("blobtable", "sha1 digest");
 
 Delete blob, returns true on success, undef on failure and set C<$dbh-E<gt>errstr> & C<$dbh-E<gt>err>
@@ -496,7 +496,7 @@ C<doc> schema, to get blobs tables list, use C<blob> schema
     $dbh->crate_tables_list("blob");
 
 return a list of tables under schema with information
-    
+
     [
         {
             'number_of_replicas' => '0-all',
@@ -523,7 +523,7 @@ Same as C<crate_tables_list> but returns single hash ref reult for the C<tablena
     my $columns = $dbh->crate_table_columns("tablename");
 
 returns list of table columns
-    
+
     [
       {
         'data_type' => 'string',
@@ -548,12 +548,12 @@ returns list of table columns
 
 =head2 Pimary keys
 
-Crate doesn't auto generate primary keys, you need to provide a unique key by your 
+Crate doesn't auto generate primary keys, you need to provide a unique key by your
 self and it must be **ehem** UNIQUE :)
 
 =head2 last inserted id
 
-Well, there is also no way to get the last inserted id, for the obvious 
+Well, there is also no way to get the last inserted id, for the obvious
 reason mentioned above I guess, but you can query that if you want in a
 new statement
 
@@ -567,7 +567,7 @@ To install this module, run the following commands:
     make install
 
 OR
-    
+
     cpan install DBD-Crate
 
 If you want to run the complete test suite, you need to have
@@ -579,7 +579,7 @@ on windows
     $ set CRATE_HOST=127.0.0.1:4200
 
 on linux
-    
+
     $ export CRATE_HOST=127.0.0.1:4200
 
 =head1 See Also
@@ -598,5 +598,5 @@ Mamod A. Mehyar, E<lt>mamod.mehyar@gmail.comE<gt>
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify 
+This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself
