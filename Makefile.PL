@@ -9,11 +9,15 @@ WriteMakefile(
         NAME              => 'DBD::Crate',
         VERSION_FROM      => 'lib/DBD/Crate.pm',
         ABSTRACT_FROM     => 'lib/DBD/Crate.pm',
+        CONFIGURE_REQUIRES => {
+            'DBI'               => 1.50,
+        },
         PREREQ_PM         => {
             'DBI'               => 1.50,
             'HTTP::Tiny'        => 0.055,
             'JSON::MaybeXS'     => 1.003003,
             'Test::More'        => 0,
+            'Digest::SHA1'      => 0,
         },
         LICENSE        => 'perl',
         AUTHOR         => 'Mamod Mehyar <mamod.mehyar@gmail.com>',
