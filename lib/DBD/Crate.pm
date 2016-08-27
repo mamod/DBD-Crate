@@ -5,7 +5,7 @@ use HTTP::Tiny;
 use JSON::MaybeXS;
 use vars qw($VERSION $REVISION);
 use vars qw($err $errstr $state $drh);
-$VERSION = "0.0.2";
+$VERSION = "0.0.3";
 
 $err     = 0;
 $errstr  = "";
