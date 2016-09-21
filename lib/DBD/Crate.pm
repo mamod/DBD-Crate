@@ -405,7 +405,7 @@ in early development so any feedback is much appreciated.
 
 =head1 ABOUT CRATE
 
-If you haven't heard of Crate I suggest you to give it a try, it's a is a
+If you haven't heard of Crate I suggest you to give it a try, it's a
 distributed data store With SQL query support, and fulltext seach based
 on Elasticsearch, please read this L<overview|https://crate.io/overview/>
 
