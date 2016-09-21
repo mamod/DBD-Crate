@@ -5,7 +5,7 @@ use HTTP::Tiny;
 use JSON::MaybeXS;
 use vars qw($VERSION $REVISION);
 use vars qw($err $errstr $state $drh);
-$VERSION = "0.0.3";
+$VERSION = "0.0.4";
 
 $err     = 0;
 $errstr  = "";
@@ -290,6 +290,14 @@ package DBD::Crate::st; {
                 code    => ref $data ? $data->{status} : $ret->{status},
                 message => ref $data ? $data->{error}  : ($ret->{content} || $ret->{reason})
             };
+
+            if ($sth->{Database}->{PrintError} && !$sth->{Database}->{RaiseError}) {
+                warn $error->{message};
+            }
+
+            if ($sth->{Database}->{RaiseError}) {
+                die $error->{code} . ' : ' . $error->{message};
+            }
 
             $sth->set_err($error->{code}, $error->{message});
             return;

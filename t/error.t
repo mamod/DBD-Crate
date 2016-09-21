@@ -10,7 +10,7 @@ if (!$ENV{CRATE_HOST}) {
     plan skip_all => 'You need to set $ENV{CRATE_HOST} to run tests';
 }
 
-my $dbh = DBI->connect( 'dbi:Crate:' . $ENV{CRATE_HOST} );
+my $dbh = DBI->connect( 'dbi:Crate:' . $ENV{CRATE_HOST}, '', '', { RaiseError => 0, PrintError => 0 } );
 
 ok($dbh);
 my $sth;
